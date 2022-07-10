@@ -3,13 +3,13 @@
 
 #pragma once
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
 #include <stdlib.h>
 #include <string>
 #include "Util.h"
 #include "stdafx.h"
 #include "UnrealSDK.h"
-#include "logging.h"
+#include "Logging.h"
 
 /*
 # ========================================================================================= #

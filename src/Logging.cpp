@@ -1,8 +1,8 @@
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
 #include <stdio.h>
 #include "stdafx.h"
-#include "UnrealSdk.h"
+#include "UnrealSDK.h"
 #include "Logging.h"
 #include "Util.h"
 #include "Exceptions.h"
@@ -154,7 +154,7 @@ namespace Logging
 	// Everything else can fail, but InitializeFile must work.
 	void InitializeFile(const std::wstring& fileName)
 	{
-		gLogFile = CreateFile(fileName.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS,
+		gLogFile = CreateFileW(fileName.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS,
 		                     FILE_ATTRIBUTE_NORMAL, nullptr);
 		if (gLogFile == INVALID_HANDLE_VALUE)
 		{

@@ -1,6 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include "stdafx.h"
-#include <Windows.h>
+#include <windows.h>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -61,12 +61,13 @@ namespace Util
 	DWORD GetMainThreadId(DWORD DwPid)
 	{
 		LPVOID lpTid;
-		_asm
-		{
-			mov eax, fs:[18h]
-			add eax, 36
-			mov[lpTid], eax
-		}
+    // TODO:
+		/* _asm */
+		/* { */
+		/* 	mov eax, fs:[18h] */
+		/* 	add eax, 36 */
+		/* 	mov[lpTid], eax */
+		/* } */
 		HANDLE hProcess = OpenProcess(PROCESS_VM_READ, FALSE, DwPid);
 		if (hProcess == nullptr)
 			return NULL;
@@ -167,7 +168,7 @@ namespace Util
 
 	void Popup(const std::wstring& StrName, const std::wstring& StrText)
 	{
-		MessageBox(nullptr, StrText.c_str(), StrName.c_str(), MB_OK | MB_ICONASTERISK);
+		MessageBoxW(nullptr, StrText.c_str(), StrName.c_str(), MB_OK | MB_ICONASTERISK);
 	}
 
 	void CloseGame()
@@ -206,8 +207,10 @@ namespace Util
 		{
 			for (auto& mod : Modules)
 			{
-				if (GetModuleHandleW(std::data(mod)) == nullptr)
+				if (GetModuleHandleW(mod.data()) == nullptr)
 					return WAIT_TIMEOUT;
+				/* if (GetModuleHandleW(std::data(mod)) == nullptr) */
+				/* 	return WAIT_TIMEOUT; */
 			}
 			return WAIT_OBJECT_0;
 		}
@@ -220,7 +223,7 @@ namespace Util
 			for (auto i = 0u; i < Modules.size(); ++i)
 			{
 				auto& module = *(Modules.begin() + i);
-				if (!signaled[i] && GetModuleHandleW(std::data(module)) != nullptr)
+				if (!signaled[i] && GetModuleHandleW(module.data()) != nullptr)
 				{
 					signaled[i] = true;
 

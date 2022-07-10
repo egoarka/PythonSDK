@@ -22,3 +22,10 @@ Or, for TPS:
     WINEDLLOVERRIDES="ddraw=n,b" bash -c 'exec "${@/Launcher.exe/BorderlandsPreSequel.exe}"' -- %command%
 
 Note that using `WINEDLLOVERRIDES` for `ddraw` isn't supported by the Wine developers, so if you experience problems with the game while using this method, please don't ask the WineHQ team for assistance.
+
+
+## Compile with MinGW
+
+```
+i686-w64-mingw32-g++ -std=c++11  -fpermissive -s  -static-libgcc -static-libstdc++ -I ./src/include -L ./python -lpython37 -I /Python37-32/include  -shared -o ddraw.dll ./src/main.cpp  ./src/Settings.cpp ./src/Logging.cpp ./src/UnrealSDK.cpp ./src/pydefs/gamedefines.cpp ./src/pydefs/_TArray.cpp ./src/pydefs/Core_structs.cpp ./src/pydefs/Core_classes.cpp ./src/UnrealEngine/Core_functions.cpp ./src/UnrealEngine/Engine_functions.cpp ./src/CPythonInterface.cpp ./src/stdafx.cpp ./src/CoreExtensions.cpp ./src/Util.cpp ./src/CSigScan.cpp ./src/CHookManager.cpp ./src/AntiDebug.cpp ./src/include/detours/disasm.cpp ./src/CSimpleDetour.cpp ./src/include/detours/detours.cpp  ./src/include/detours/modules.cpp 
+```

@@ -6,7 +6,7 @@
 #include "CHookManager.h"
 #include "AntiDebug.h"
 #include "Util.h"
-#include "UnrealSdk.h"
+#include "UnrealSDK.h"
 #include <utility>
 #include "Logging.h"
 #include "Settings.h"
@@ -53,9 +53,25 @@ namespace UnrealSDK
 	{
 		// Get "this"
 		UObject* caller;
-		_asm mov caller, ecx;
 
-		std::string functionName = Function->GetObjectName();
+    /* int a; */
+    /* int b; */
+    /* int c; */
+    /* int d; */
+
+    /* asm("movl %%eax, %0;" : "=r" (a)); */
+    /* asm("movl %%ebx, %0;" : "=r" (b)); */
+    /* asm("movl %%ecx, %0;" : "=r" (c)); */
+    /* asm("movl %%edx, %0;" : "=r" (d)); */
+
+
+    asm("movl %%ecx, %0;" : "=r" (caller));
+
+    /* Logging::LogF("0 caller ptr 0x%p\n", caller); */
+    /* Logging::LogF("0 fun ptr 0x%p\n", Function); */
+
+    std::string functionName = Function->GetObjectName();
+
 		if (gInjectedCallNext)
 		{
 			gInjectedCallNext = false;
@@ -102,7 +118,7 @@ namespace UnrealSDK
 	{
 		// Get "this"
 		UObject* caller;
-		_asm mov caller, ecx;
+    asm("movl %%ecx, %0;" : "=r" (caller) : );
 
 		if (logAllCalls)
 		{
@@ -139,21 +155,24 @@ namespace UnrealSDK
 
 	void hookGame()
 	{
-		TCHAR szExePath[2048];
+		wchar_t szExePath[2048];
 
 		// For some god forsaken reason, GetModuleFileName can sometimes just fail ??? 
-		if (GetModuleFileName(NULL, szExePath, 2048) == 0) {
+		if (GetModuleFileNameW(NULL, szExePath, 2048) == 0) {
 			Logging::LogF("WINAPI Error when finding exe name commands: %d\n", GetLastError());
 			// Maybe we can try using another form of getting the module exe???
 			// https://stackoverflow.com/questions/6924195/get-dll-path-at-runtime
-			if (GetModuleFileName(GetModuleHandle(NULL), szExePath, 2048) == 0) {
+			if (GetModuleFileNameW(GetModuleHandle(NULL), szExePath, 2048) == 0) {
 				Logging::LogF("WINAPI Error #2 when finding exe name commands: %d\n", GetLastError());
 				return;
 			}
 			// If we make it here, that means that the second check actually went through and worked ????
 		}
 
-		std::string str = Util::Narrow(std::wstring(szExePath));
+    std::wstring szExePathWS(&szExePath[0]);
+		std::string str = Util::Narrow(szExePathWS);
+
+		/* std::string str = Util::Narrow(std::wstring(szExePath)); */
 		std::size_t slash = str.find_last_of("/\\") + 1;
 		std::size_t dot = str.find_last_of('.');
 		std::string exeName = str.substr(slash, dot - slash);
@@ -299,6 +318,7 @@ namespace UnrealSDK
 		//Logging::SetLoggingLevel("DEBUG");
 		gHookManager = new CHookManager("EngineHooks");
 		hookGame();
+    Logging::Log("mi tut\n");
 
 		LogAllCalls(false);
 

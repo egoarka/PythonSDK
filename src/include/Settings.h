@@ -2,7 +2,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <Windows.h>
+#include <windows.h>
 #include <string>
 
 struct LauncherStruct

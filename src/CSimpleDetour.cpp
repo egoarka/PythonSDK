@@ -13,7 +13,7 @@ CSimpleDetour::CSimpleDetour(void** old, void* replacement)
 void CSimpleDetour::Attach()
 {
 	DetourTransactionBegin();
-	//DetourUpdateThread(GetCurrentThread());
+	/* DetourUpdateThread(GetCurrentThread()); */
 
 	DetourAttach(m_fnOld, m_fnReplacement);
 

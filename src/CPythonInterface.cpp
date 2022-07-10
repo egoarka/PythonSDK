@@ -195,23 +195,26 @@ void CPythonInterface::CleanupState()
 
 std::vector<std::wstring> getSubdirs(const std::wstring& path)
 {
+	/* WIN32_FIND_DATA findfiledata; */
 	WIN32_FIND_DATA findfiledata;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 
 	wchar_t fullpath[MAX_PATH];
-	GetFullPathName(path.c_str(), MAX_PATH, fullpath, nullptr);
+	GetFullPathNameW(path.c_str(), MAX_PATH, fullpath, nullptr);
 	std::wstring fp(fullpath);
 
 	std::vector<std::wstring> output{};
-	hFind = FindFirstFile((fp + L"\\*").c_str(), &findfiledata);
+  char buff[256];
+  wsprintfA(buff, "%ls", (fp + L"\\*").c_str());
+	hFind = FindFirstFile(buff, &findfiledata);
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
 			if ((findfiledata.dwFileAttributes | FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY
-				&& (findfiledata.cFileName[0] != '.') && wcscmp(L"__pycache__", findfiledata.cFileName))
+				&& (findfiledata.cFileName[0] != '.') && strcmp("__pycache__", findfiledata.cFileName))
 			{
-				output.push_back(findfiledata.cFileName);
+				output.push_back(std::wstring(&findfiledata.cFileName[0], &findfiledata.cFileName[260]));
 			}
 		}
 		while (FindNextFile(hFind, &findfiledata) != 0);

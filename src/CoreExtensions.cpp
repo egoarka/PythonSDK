@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <stack>
+#include <stdexcept>
 #include <utility>
 #include <sstream>
 
@@ -90,7 +91,7 @@ std::vector<UObject*> UObject::FindAll(char* InStr, bool IncludeSubclasses = fal
 {
 	UClass* inClass = FindClass(InStr, true);
 	if (!inClass)
-		throw std::exception("Unable to find class");
+		throw std::runtime_error("Unable to find class");
 	std::vector<UObject*> ret;
 	for (size_t i = 0; i < GObjects()->Count; ++i)
 	{
@@ -258,7 +259,7 @@ void FHelper::SetStructProperty(class UProperty* Prop, int idx, const py::object
 
 		if (tup.size() > currentIndex)
 		{
-			throw std::exception(
+			throw std::runtime_error(
 				Util::Format("FHelper::SetProperty: Not all tuple values converted for struct!\n").c_str());
 		}
 
@@ -385,7 +386,7 @@ void FHelper::SetBoolProperty(class UProperty* Prop, int idx, const py::object& 
 	}
 	catch (std::exception e)
 	{
-		throw std::exception(Util::Format("FHelper::SetProperty: %s\n", e.what()).c_str());
+		throw std::runtime_error(Util::Format("FHelper::SetProperty: %s\n", e.what()).c_str());
 	}
 }
 
@@ -398,8 +399,10 @@ void FHelper::SetArrayProperty(class UProperty* Prop, int idx, const py::object&
 	const auto currentArray = reinterpret_cast<TArray<char>*>(GetPropertyAddress(Prop, idx));
 	if (s.size() > currentArray->Count)
 	{
-		char *data = static_cast<char*>(static_cast<tMalloc>(UnrealSDK::pGMalloc[0][0][1])(UnrealSDK::pGMalloc[0],
-		                                                                           static_cast<UArrayProperty*>(Prop)->GetInner()->ElementSize * s.size(), 8));
+    char *data = static_cast<char*>(reinterpret_cast<tMalloc>(
+        UnrealSDK::pGMalloc[0][0][1])(UnrealSDK::pGMalloc[0],
+		    static_cast<UArrayProperty*>(Prop)->GetInner()->ElementSize * s.size(), 8));
+		/* char *data = static_cast<char*>(sas); */
 		memset(data, 0, static_cast<UArrayProperty*>(Prop)->GetInner()->ElementSize * s.size());
 		currentArray->Data = data;
 		currentArray->Max = s.size();
@@ -667,7 +670,7 @@ void FFunction::GenerateParams(const py::args& args, const py::kwargs& kwargs, F
 		}
 		if (Child->PropertyFlags & 0x110) // Optional | Output
 			continue;
-		throw std::exception("Invalid number of parameters");
+		throw std::runtime_error("Invalid number of parameters");
 	}
 }
 
@@ -754,7 +757,7 @@ void FStruct::SetProperty(std::string& PropName, py::object value) const
 {
 	class UObject* obj = structType->FindChildByName(FName(PropName));
 	if (!obj)
-		throw std::exception(
+		throw std::runtime_error(
 			Util::Format("FStruct::SetProperty: Unable to find property '%s'!\n", PropName.c_str()).c_str());
 	auto prop = reinterpret_cast<UProperty*>(obj);
 	((FHelper*)((char*)base))->SetProperty(prop, std::move(value));

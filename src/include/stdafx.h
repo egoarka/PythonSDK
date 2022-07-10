@@ -4,7 +4,7 @@
 #define VERSION_MINOR	7
 #define VERSION_PATCH	10
 
-#include <SDKDDKVer.h>
+/* #include <SDKDDKVer.h> */
 #define WIN32_LEAN_AND_MEAN
 #include <pybind11/pybind11.h>
 #include <pybind11/embed.h>
@@ -14,14 +14,14 @@
 #include <windows.h>
 #include <cstdio>
 #include <iostream>
-#include <ShlObj.h>
+/* #include <ShlObj.h> */
 #include <string>
 #include <map>
 #include <regex>
 #include <typeinfo>
 
-#include <Shlwapi.h>
-#pragma comment (lib, "Shlwapi.lib")
+/* #include <shlwapi.h> */
+/* #pragma comment (lib, "Shlwapi.lib") */
 
 namespace UnrealSDK
 {
@@ -34,7 +34,7 @@ namespace UnrealSDK
 
 #include "gamedefines.h"
 
-#include "logging.h"
+#include "Logging.h"
 
 #include "UnrealEngine/Core/Core_structs.h"
 #include "UnrealEngine/Core/Core_f_structs.h"

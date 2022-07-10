@@ -8,7 +8,7 @@
 
 CSigScan::CSigScan(const wchar_t* moduleName)
 {
-	m_moduleHandle = GetModuleHandle(moduleName);
+	m_moduleHandle = GetModuleHandleW(moduleName);
 	if (m_moduleHandle == nullptr)
 	{
 		throw FatalSDKException(3000, Util::Format("Sigscan failed (GetModuleHandle returned NULL, Error = %d)",

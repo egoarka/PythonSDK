@@ -8,6 +8,7 @@
 //
 
 #include "stdafx.h"
+/* #include "excpt.h */
 
 #pragma warning(disable:4068) // unknown pragma (suppress)
 
@@ -58,7 +59,7 @@ static bool detour_is_imported(PBYTE pbCode, PBYTE pbAddress)
 {
 	MEMORY_BASIC_INFORMATION mbi;
 	VirtualQuery((PVOID)pbCode, &mbi, sizeof(mbi));
-	__try {
+	/* __try1 { */
 		PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)mbi.AllocationBase;
 		if (pDosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
 			return false;
@@ -80,12 +81,12 @@ static bool detour_is_imported(PBYTE pbCode, PBYTE pbAddress)
 				.DataDirectory[IMAGE_DIRECTORY_ENTRY_IAT].Size)) {
 			return true;
 		}
-	}
-#pragma prefast(suppress:28940, "A bad pointer means this probably isn't a PE header.")
-	__except (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ?
-		EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
-		return false;
-	}
+	/* } */
+/* #pragma prefast(suppress:28940, "A bad pointer means this probably isn't a PE header.") */
+	/* __except1 (GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? */
+	/* 	EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) { */
+	/* 	return false; */
+	/* } */
 	return false;
 }
 

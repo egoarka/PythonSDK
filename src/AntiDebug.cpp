@@ -14,10 +14,10 @@ namespace UnrealSDK
 	tNtSIT pNtSetInformationThread = nullptr;
 
 	NTSTATUS NTAPI hkNtSetInformationThread(
-		__in HANDLE ThreadHandle,
-		__in THREAD_INFORMATION_CLASS ThreadInformationClass,
-		__in PVOID ThreadInformation,
-		__in ULONG ThreadInformationLength)
+		 HANDLE ThreadHandle,
+		 THREAD_INFORMATION_CLASS ThreadInformationClass,
+		 PVOID ThreadInformation,
+		 ULONG ThreadInformationLength)
 	{
 		if (ThreadInformationClass == 17) // ThreadHideFromDebugger
 		{
@@ -33,11 +33,11 @@ namespace UnrealSDK
 	tNtQIP pNtQueryInformationProcess = nullptr;
 
 	NTSTATUS WINAPI hkNtQueryInformationProcess(
-		__in HANDLE ProcessHandle,
-		__in PROCESSINFOCLASS ProcessInformationClass,
-		__out PVOID ProcessInformation,
-		__in ULONG ProcessInformationLength,
-		__out_opt PULONG ReturnLength)
+		 HANDLE ProcessHandle,
+		 PROCESSINFOCLASS ProcessInformationClass,
+		 PVOID ProcessInformation,
+		 ULONG ProcessInformationLength,
+		 PULONG ReturnLength)
 	{
 		if (ProcessInformationClass == 30) // ProcessDebugObjectHandle
 		{
@@ -50,7 +50,7 @@ namespace UnrealSDK
 
 	void HookAntiDebug()
 	{
-		HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
+		HMODULE hNtdll = GetModuleHandleW(L"ntdll.dll");
 		if (!hNtdll)
 		{
 			throw FatalSDKException(7000, Util::Format("GetModuleHandle failed for ntdll.dll (Error = 0x%X)",
