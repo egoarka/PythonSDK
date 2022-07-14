@@ -5,6 +5,20 @@
 #include <sstream>
 
 
+void UConsole::OutputText(const struct FString& Text)
+{
+	static auto fn = (UFunction *)UObject::Find("Function", "Engine.Console.OutputText");
+
+	UConsole_OutputText_Params params;
+	params.Text = Text;
+
+	auto flags = fn->FunctionFlags;
+
+	UnrealSDK::pProcessEvent(this, fn, &params, nullptr);
+
+	fn->FunctionFlags = flags;
+}
+
 UObject* UObject::Load(UClass* ClassToLoad, const char* ObjectFullName)
 {
 	return UObject::GObjects()->Data[0]->DynamicLoadObject(FString(ObjectFullName), ClassToLoad, true);

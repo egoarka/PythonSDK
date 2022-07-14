@@ -40,13 +40,25 @@ namespace UnrealSDK
 #include "UnrealEngine/Core/Core_f_structs.h"
 #include "UnrealEngine/Core/Core_classes.h"
 
-#include "UnrealEngine/Engine/Engine_structs.h"
-#include "UnrealEngine/Engine/Engine_f_structs.h"
-#include "UnrealEngine/Engine/Engine_classes.h"
+/* #include "UnrealEngine/Engine/Engine_structs.h" */
+/* #include "UnrealEngine/Engine/Engine_f_structs.h" */
+/* #include "UnrealEngine/Engine/Engine_classes.h" */
 
 #include "TypeMap.h"
 
 #include "Games.h"
+
+struct UConsole_ConsoleCommand_Params
+{
+	struct FString Command;
+};
+
+// Function Engine.Console.OutputText
+struct UConsole_OutputText_Params
+{
+	struct FString Text;
+};
+
 
 namespace pybind11
 {

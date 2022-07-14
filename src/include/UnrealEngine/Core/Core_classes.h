@@ -840,6 +840,21 @@ public:
 	virtual void VirtualFunction255() {};																			// 0x01074DF0 (0x3FC)
 };
 
+class UUIRoot : public UObject {
+};
+
+class UInteraction : public UUIRoot {
+};
+
+class UConsole : public UInteraction {
+public:
+	char unused[0x80];
+	struct FName ConsoleKey;
+
+	void ConsoleCommand(const struct FString& Command);
+	void OutputText(const struct FString& Text);
+};
+
 // 0x0024 (0x0060 - 0x003C)
 class UTextBuffer : public UObject
 {

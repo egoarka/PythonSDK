@@ -120,18 +120,20 @@ PYBIND11_EMBEDDED_MODULE(unrealsdk, m)
 
 void AddToConsoleLog(UConsole* console, FString input)
 {
-	int prev = (console->HistoryTop - 1) % 16;
-	if (!console->History[prev].Data || strcmp(input.AsString(), console->History[prev].AsString()))
-	{
-		console->PurgeCommandFromHistory(input);
-		console->History[console->HistoryTop] = input;
-		console->HistoryTop = (console->HistoryTop + 1) % 16;
-		if ((console->HistoryBot == -1) || console->HistoryBot == console->HistoryTop)
-			console->HistoryBot = (console->HistoryBot + 1) % 16;
-	}
-	console->HistoryCur = console->HistoryTop;
-	console->SaveConfig();
+  // TODO:
+	/* int prev = (console->HistoryTop - 1) % 16; */
+	/* if (!console->History[prev].Data || strcmp(input.AsString(), console->History[prev].AsString())) */
+	/* { */
+	/* 	console->PurgeCommandFromHistory(input); */
+	/* 	console->History[console->HistoryTop] = input; */
+	/* 	console->HistoryTop = (console->HistoryTop + 1) % 16; */
+	/* 	if ((console->HistoryBot == -1) || console->HistoryBot == console->HistoryTop) */
+	/* 		console->HistoryBot = (console->HistoryBot + 1) % 16; */
+	/* } */
+	/* console->HistoryCur = console->HistoryTop; */
+	/* console->SaveConfig(); */
 }
+
 
 bool CheckPythonCommand(UObject* caller, UFunction* function, FStruct* params)
 {

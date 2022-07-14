@@ -49,28 +49,9 @@ namespace UnrealSDK
 
 	std::map<std::string, UClass *> ClassMap = {};
 
-	void __stdcall hkProcessEvent(UFunction* Function, void* Params, void* Result)
+	void __thiscall hkProcessEvent(UObject* caller, UFunction* Function, void* Params, void* Result)
 	{
-		// Get "this"
-		UObject* caller;
-
-    /* int a; */
-    /* int b; */
-    /* int c; */
-    /* int d; */
-
-    /* asm("movl %%eax, %0;" : "=r" (a)); */
-    /* asm("movl %%ebx, %0;" : "=r" (b)); */
-    /* asm("movl %%ecx, %0;" : "=r" (c)); */
-    /* asm("movl %%edx, %0;" : "=r" (d)); */
-
-
-    asm("movl %%ecx, %0;" : "=r" (caller));
-
-    /* Logging::LogF("0 caller ptr 0x%p\n", caller); */
-    /* Logging::LogF("0 fun ptr 0x%p\n", Function); */
-
-    std::string functionName = Function->GetObjectName();
+		std::string functionName = Function->GetObjectName();
 
 		if (gInjectedCallNext)
 		{
@@ -114,12 +95,8 @@ namespace UnrealSDK
 		}
 	}
 
-	void __stdcall hkCallFunction(FFrame& Stack, void* const Result, UFunction* Function)
+	void __thiscall hkCallFunction(UObject* caller, FFrame& Stack, void* const Result, UFunction* Function)
 	{
-		// Get "this"
-		UObject* caller;
-    asm("movl %%ecx, %0;" : "=r" (caller) : );
-
 		if (logAllCalls)
 		{
 			std::string callerName = caller->GetFullName();
@@ -264,10 +241,11 @@ namespace UnrealSDK
 		// Set console key to Tilde if not already set
 		gameConsole = static_cast<UConsole *>(UObject::Find(ObjectMap["ConsoleObjectType"].c_str(), ObjectMap["ConsoleObjectName"].c_str())
 		);
-		if (gameConsole == nullptr && gEngine && static_cast<UEngine *>(gEngine)->GameViewport)
-			gameConsole = static_cast<UEngine *>(gEngine)->GameViewport->ViewportConsole;
-		if (gameConsole && (gameConsole->ConsoleKey == FName("None") || gameConsole->ConsoleKey == FName("Undefine")))
-			gameConsole->ConsoleKey = FName("Tilde");
+    // TODO:
+		/* if (gameConsole == nullptr && gEngine && static_cast<UEngine *>(gEngine)->GameViewport) */
+		/* 	gameConsole = static_cast<UEngine *>(gEngine)->GameViewport->ViewportConsole; */
+		/* if (gameConsole && (gameConsole->ConsoleKey == FName("None") || gameConsole->ConsoleKey == FName("Undefine"))) */
+		/* 	gameConsole->ConsoleKey = FName("Tilde"); */
 
 		InitializePython();
 
