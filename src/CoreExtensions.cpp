@@ -5,6 +5,20 @@
 #include <sstream>
 
 
+void UConsole::ConsoleCommand(const struct FString& Command)
+{
+	static auto fn = (UFunction *)UObject::Find("Function", "Engine.Console.ConsoleCommand");
+
+	UConsole_ConsoleCommand_Params params;
+	params.Command = Command;
+
+	auto flags = fn->FunctionFlags;
+
+	UnrealSDK::pProcessEvent(this, fn, &params, nullptr);
+
+	fn->FunctionFlags = flags;
+}
+
 void UConsole::OutputText(const struct FString& Text)
 {
 	static auto fn = (UFunction *)UObject::Find("Function", "Engine.Console.OutputText");

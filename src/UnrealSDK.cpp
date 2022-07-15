@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "CSimpleDetour.h"
 #include "CSigScan.h"
 #include "Exceptions.h"
 #include "Signatures.h"
@@ -14,6 +13,7 @@
 #include "gamedefines.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <MinHook.h>
 
 namespace UnrealSDK
 {
@@ -27,6 +27,8 @@ namespace UnrealSDK
 	void* pGCRCTable;
 	void* pNameHash;
 	void**** pGMalloc = nullptr;
+	tProcessEvent oProcessEvent;
+	tCallFunction oCallFunction;
 	tProcessEvent pProcessEvent;
 	tCallFunction pCallFunction;
 	tFrameStep pFrameStep;
@@ -56,7 +58,7 @@ namespace UnrealSDK
 		if (gInjectedCallNext)
 		{
 			gInjectedCallNext = false;
-			pProcessEvent(caller, Function, Params, Result);
+			oProcessEvent(caller, Function, Params, Result);
 			return;
 		}
 
@@ -76,7 +78,7 @@ namespace UnrealSDK
 			return;
 		}
 
-		pProcessEvent(caller, Function, Params, Result);
+		oProcessEvent(caller, Function, Params, Result);
 	}
 
 	void LogOutParams(FFrame* Stack)
@@ -117,7 +119,7 @@ namespace UnrealSDK
 			return;
 		}
 		Stack.Code = code;
-		pCallFunction(caller, Stack, Result, Function);
+		oCallFunction(caller, Stack, Result, Function);
 	}
 
 	void DoInjectedCallNext()
@@ -209,15 +211,20 @@ namespace UnrealSDK
 			Logging::LogF("Exception when enabling 'SET' commands: %d\n", e.what());
 		}
 
-		// Detour UObject::ProcessEvent()
-		//SETUP_SIMPLE_DETOUR(detProcessEvent, pProcessEvent, hkProcessEvent);
-		CSimpleDetour detProcessEvent(&(PVOID&)pProcessEvent, hkProcessEvent);
-		detProcessEvent.Attach();
+		if (MH_CreateHook(pProcessEvent, hkProcessEvent, &(PVOID&)oProcessEvent) != MH_OK) {
+			Logging::Log("Can't create hook for ProcessEvent\n");
+			return 1;
+		}
 
-		// Detour UObject::CallFunction()
-		//SETUP_SIMPLE_DETOUR(detCallFunction, pCallFunction, hkCallFunction);
-		CSimpleDetour detCallFunction(&(PVOID&)pCallFunction, hkCallFunction);
-		detCallFunction.Attach();
+		if (MH_CreateHook(pCallFunction, hkCallFunction, &(PVOID&)oCallFunction) != MH_OK)  {
+			Logging::Log("Can't create hook for CallFunction\n");
+			return 1;
+		}
+
+		if (MH_EnableHook(NULL) != MH_OK) {
+			Logging::Log("Can't enable hooks\n");
+			return 1;
+		}
 	}
 
 	void InitializePython()
@@ -296,7 +303,6 @@ namespace UnrealSDK
 		//Logging::SetLoggingLevel("DEBUG");
 		gHookManager = new CHookManager("EngineHooks");
 		hookGame();
-    Logging::Log("mi tut\n");
 
 		LogAllCalls(false);
 

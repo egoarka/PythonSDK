@@ -1,10 +1,9 @@
 ﻿#include "stdafx.h"
-#include "detours/detours.h"
 #include "UnrealSDK.h"
 #include "Util.h"
 #include "Settings.h"
 #include "Logging.h"
-
+#include <MinHook.h>
 /* typedef char* PSTR, *LPSTR; */
 
 wchar_t exeBaseFolder[FILENAME_MAX];
@@ -29,6 +28,11 @@ DWORD WINAPI Start(LPVOID lpParam)
 	Logging::InitializeExtern();
 #endif
 
+	if (MH_Initialize() != MH_OK) {
+		Logging::Log("Undefined behaviour, can't Initialize MinHook\n");
+		return 1;
+	}
+
 	Logging::LogF("======= Borderlands 2 Python Loader =======\n");
 	UnrealSDK::Initialize();
 	/* LoadPlugins(L".\\Plugins"); */
@@ -41,9 +45,6 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID)
 	if (reason == DLL_PROCESS_ATTACH)
 	{
 		DisableThreadLibraryCalls(hInst);
-
-		DetourRestoreAfterWith();
-		DetourUpdateThread(GetCurrentThread());
 
 		DWORD dwThreadId, dwThrdParam = 1;
 		HANDLE hThread;

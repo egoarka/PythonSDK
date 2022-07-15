@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "CSimpleDetour.h"
 #include "Logging.h"
 #include "Exceptions.h"
 #include "Util.h"
+#include <MinHook.h>
 
 #include <winternl.h>
 #define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
@@ -12,6 +12,7 @@ namespace UnrealSDK
 {
 	typedef NTSTATUS (WINAPI* tNtSIT)(HANDLE, THREAD_INFORMATION_CLASS, PVOID, ULONG);
 	tNtSIT pNtSetInformationThread = nullptr;
+	tNtSIT oNtSetInformationThread = nullptr;
 
 	NTSTATUS NTAPI hkNtSetInformationThread(
 		 HANDLE ThreadHandle,
@@ -25,12 +26,13 @@ namespace UnrealSDK
 			return STATUS_SUCCESS;
 		}
 
-		return pNtSetInformationThread(ThreadHandle, ThreadInformationClass, ThreadInformation,
+		return oNtSetInformationThread(ThreadHandle, ThreadInformationClass, ThreadInformation,
 		                               ThreadInformationLength);
 	}
 
 	typedef NTSTATUS (WINAPI* tNtQIP)(HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG);
 	tNtQIP pNtQueryInformationProcess = nullptr;
+	tNtQIP oNtQueryInformationProcess = nullptr;
 
 	NTSTATUS WINAPI hkNtQueryInformationProcess(
 		 HANDLE ProcessHandle,
@@ -44,7 +46,7 @@ namespace UnrealSDK
 			return STATUS_PORT_NOT_SET;
 		}
 
-		return pNtQueryInformationProcess(ProcessHandle, ProcessInformationClass, ProcessInformation,
+		return oNtQueryInformationProcess(ProcessHandle, ProcessInformationClass, ProcessInformation,
 		                                  ProcessInformationLength, ReturnLength);
 	}
 
@@ -64,9 +66,10 @@ namespace UnrealSDK
 				7001, Util::Format("GetProcAddress failed for NtSetInformationThread (Error = 0x%X)", GetLastError()));
 		}
 
-		SETUP_SIMPLE_DETOUR(detNtSIT, pNtSetInformationThread, hkNtSetInformationThread);
-		detNtSIT.Attach();
-		Logging::Log("[AntiDebug] Hook added for NtSetInformationThread\n");
+		if (MH_CreateHook(pNtSetInformationThread, hkNtSetInformationThread, &(PVOID&)oNtSetInformationThread) != 0) {
+			Logging::Log("Can't create hook for NtSetInformationThread\n");
+			return 1;
+		}
 
 		pNtQueryInformationProcess = (tNtQIP)GetProcAddress(hNtdll, "NtQueryInformationProcess");
 		if (!pNtQueryInformationProcess)
@@ -76,8 +79,17 @@ namespace UnrealSDK
 				                   GetLastError()));
 		}
 
-		SETUP_SIMPLE_DETOUR(detNtQIP, pNtQueryInformationProcess, hkNtQueryInformationProcess);
-		detNtQIP.Attach();
+		if (MH_CreateHook(pNtQueryInformationProcess, hkNtQueryInformationProcess, &(PVOID&)oNtQueryInformationProcess) != MH_OK) {
+			Logging::Log("Can't create hook for NtQueryInformationProcess\n");
+			return 1;
+		}
+
+		if (MH_EnableHook(NULL) != MH_OK) {
+			Logging::Log("Can't enable hooks\n");
+			return 1;
+		}
+
+		Logging::Log("[AntiDebug] Hook added for NtSetInformationThread\n");
 		Logging::Log("[AntiDebug] Hook added for NtQueryInformationProcess\n");
 	}
 }
